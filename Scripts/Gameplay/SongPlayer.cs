@@ -2,10 +2,11 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Gameplay
 {
-    public class SongPlayer : MonoBehaviour
+    public class SongPlayer : BaseBehaviour, ISetupable, ITickable
     {
         public bool IsPlaying => isPlaying;
         public float BeatLeadTime => beatLeadTime;
@@ -39,7 +40,7 @@ namespace VogueVR.Gameplay
         private int beatIndex;
         private int beatLeadIndex;
 
-        private void Start()
+        public void DoSetup()
         {
             this.songBeats = this.song.ConvertToSongBeats();
 
@@ -50,11 +51,11 @@ namespace VogueVR.Gameplay
             }
         }
 
-        private void Update()
+        public void DoTick()
         {
             if (!this.isPlaying)
                 return;
-
+            
             if (this.beatLeadIndex < this.songBeats.Length)
                 ProcessGhostBeats();
 

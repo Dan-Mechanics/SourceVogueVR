@@ -7,6 +7,5 @@
     { 
         LeftHand = 0,
         RightHand = 1
-        //Head = 2
     }
 }

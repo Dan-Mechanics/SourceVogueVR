@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Composite
 {
-    public class MatchTransform : MonoBehaviour
+    public class MatchTransform : BaseBehaviour, ITickable
     {
         [Header("References")]
 
@@ -14,7 +15,7 @@ namespace VogueVR.Composite
         [SerializeField] private bool matchRot = default;
         [SerializeField] private bool matchScale = default;
 
-        private void Update()
+        public void DoTick()
         {
             if (this.matchPos)
                 this.transform.position = this.model.position;

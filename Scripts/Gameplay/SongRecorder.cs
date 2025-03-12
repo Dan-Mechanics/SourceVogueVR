@@ -59,7 +59,7 @@ namespace VogueVR.Gameplay
             BodyPart part = (BodyPart)bodyPart;
 
             this.recording.Enqueue(new SongBeat(Time.time - this.openRecordingTime,
-                part == BodyPart.LeftHand ? this.leftHand.position : this.rightHand.position, part));
+                 part == BodyPart.LeftHand ? this.leftHand.position : this.rightHand.position, part));
 
             this.onClickSound?.Invoke();
         }

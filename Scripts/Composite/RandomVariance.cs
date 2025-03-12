@@ -1,15 +1,16 @@
 ﻿using UnityEngine;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Composite
 {
-    public class RandomVariance : MonoBehaviour
+    public class RandomVariance : BaseBehaviour, ISetupable
     {
         [SerializeField] private float pos = default;
         [SerializeField] private float rot = default;
         [SerializeField] private float scale = default;
         [SerializeField] private bool flatten = default;
 
-        private void Start()
+        public void DoSetup()
         {
             Vector3 insideUnitSphere = Random.insideUnitSphere;
 

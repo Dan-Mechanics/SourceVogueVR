@@ -1,17 +1,17 @@
 ﻿using System;
-using TMPro;
 using UnityEngine;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Composite
 {
-    public class RandomText : MonoBehaviour
+    public class RandomText : BaseBehaviour, ISetupable
     {
         public Action<string> OnTextChanged;
 
         [SerializeField] private bool onStart = default;
         [SerializeField] private string[] strings = default;
 
-        private void Start()
+        public void DoSetup()
         {
             if (!this.onStart)
                 return;

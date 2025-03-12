@@ -4,13 +4,12 @@ using UnityEngine;
 namespace VogueVR.Gameplay
 {
     /// <summary>
-    /// Handles score value and writes to text.
+    /// Handles score value.
     /// </summary>
     public class Score : MonoBehaviour
     {
         public Action<float> OnScoreChanged;
 
-        // bools not allowed ?
         private bool isPaused = true;
         private float score;
 

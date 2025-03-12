@@ -9,15 +9,15 @@ namespace VogueVR.Gameplay
 
         [SerializeField] private float sampleRate = default;
 
-        private Vector3 velocity;
-        private Vector3 prevPosition;
-        private float speed;
-
         /// <summary>
         /// Bool is NOT scalable ~ Miku.
+        /// Want to use more state machines instead.
         /// </summary>
         private bool invoke;
         private float interval;
+        private Vector3 velocity;
+        private Vector3 prevPosition;
+        private float speed;
 
         public void DoSetup()
         {

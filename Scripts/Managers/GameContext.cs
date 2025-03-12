@@ -6,8 +6,8 @@ using VogueVR.Heartbeat;
 namespace VogueVR.Managers
 {
     /// <summary>
-    /// How does this work when we start with an empty scene?
     /// This cannot be abstract because its the actual context.
+    /// Reference: https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/ExampleProject/GameContext.cs
     /// </summary>
     public class GameContext : BaseBehaviour, ISetupable
     {
@@ -26,10 +26,10 @@ namespace VogueVR.Managers
         public void DoSetup()
         {
             this.songPlayer.OnSpawnBeatIndication += this.beatIndicationSpawner.Spawn;
-            this.songPlayer.OnGainScore += this.score.AddScore;
-            this.score.OnScoreChanged += this.scoreText.Write;
-            this.randomText.OnTextChanged += this.accentText.Write;
-            this.songPlayer.OnBeat += () => { this.songPlayer.ProcessBeat(this.left, this.right); };
+            this.songPlayer.OnGainScore           += this.score.AddScore;
+            this.score.OnScoreChanged             += this.scoreText.Write;
+            this.randomText.OnTextChanged         += this.accentText.Write;
+            this.songPlayer.OnBeat                += () => { this.songPlayer.ProcessBeat(this.left, this.right); };
         }
 
         private void OnDestroy()

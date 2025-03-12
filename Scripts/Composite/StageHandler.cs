@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Composite
 {
-    public class StageHandler : MonoBehaviour
+    public class StageHandler : BaseBehaviour, ISetupable
     {
         [SerializeField] private int stage = default;
         [SerializeField] private bool loadStageInStart = default;
@@ -11,7 +12,7 @@ namespace VogueVR.Composite
 
         private bool verified;
 
-        private void Start()
+        public void DoSetup()
         {
             if (this.events == null || this.events.Length <= 0) 
             {
@@ -41,8 +42,6 @@ namespace VogueVR.Composite
             int repeatCount = movement % this.events.Length;
             movement -= repeatCount * this.events.Length;
 
-            // Movement is now always between 0 and size - 1.
-
             this.stage += movement;
 
             if (this.stage < 0) 
@@ -53,9 +52,6 @@ namespace VogueVR.Composite
             {
                 this.stage -= this.events.Length;
             }
-
-            // I trust this code.
-            //stage = Mathf.Clamp(stage, 0, events.Length - 1);
 
             this.events[this.stage]?.Invoke();
         }

@@ -1,7 +1,7 @@
 ﻿namespace VogueVR.Gameplay
 {
     /// <summary>
-    /// We do it like this because json doesnt
+    /// We do it like this because JSON doesn't
     /// accept just SongBeat[].
     /// </summary>
     [System.Serializable]

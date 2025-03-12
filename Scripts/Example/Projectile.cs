@@ -3,7 +3,7 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Example
 {
-    public class Projectile : BaseBehaviour, ISetupable, IFixedTickable
+    public class Projectile : BaseBehaviour, ISetupable, ITickable, IFixedTickable
     {
         [SerializeField] private float speed = default;
 
@@ -12,6 +12,14 @@ namespace VogueVR.Example
         public void DoSetup()
         {
             this.proj = this.transform;
+        }
+
+        public void DoTick()
+        {
+            if (!Input.GetKey(KeyCode.Space))
+                return;
+
+            Destroy(this.gameObject);
         }
 
         public void DoFixedTick()

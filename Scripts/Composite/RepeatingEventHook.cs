@@ -1,10 +1,14 @@
 using UnityEngine;
 using UnityEngine.Events;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Composite
 {
-    public class RepeatingEventHook : MonoBehaviour
+    public class RepeatingEventHook : BaseBehaviour, ISetupable
     {
+        /// <summary>
+        /// This follows Unity convention.
+        /// </summary>
         public enum Startup
         { 
             Manual = 0,
@@ -13,14 +17,10 @@ namespace VogueVR.Composite
         }
         
         [SerializeField] [Min(0.01f)] private float interval = default;
-
-        /// <summary>
-        /// Can this be remedied with Heart.cs??
-        /// </summary>
         [SerializeField] private Startup startup = default;
         [SerializeField] private UnityEvent onHook = default;
 
-        private void Start()
+        public void DoSetup()
         {
             if (this.startup != Startup.Start)
                 return;
@@ -41,16 +41,20 @@ namespace VogueVR.Composite
             this.onHook?.Invoke();
         }
 
-        private void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
+            
             if (this.startup != Startup.Enable)
                 return;
 
             InvokeRepeating(nameof(Tick), 0f, this.interval);
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
+            
             if (this.startup != Startup.Enable)
                 return;
 

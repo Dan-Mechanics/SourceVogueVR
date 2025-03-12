@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Composite
 {
-    public class Billboard : MonoBehaviour
+    public class Billboard : BaseBehaviour, ITickable
     {
         [SerializeField] private Transform cam = default;
 
-        private void Update()
+        public void DoTick()
         {
             this.transform.LookAt(this.cam.position, Vector3.up);
         }

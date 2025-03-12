@@ -1,63 +1,52 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace VogueVR.Heartbeat
 {
     /// <summary>
     /// Because order of execution and performance.
-    /// Sources:
+    /// References:
     /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/GameManager.cs#L71
     /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/ExampleProject/CustomMonoBehaviour.cs
     /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/ExampleProject/UpdateManager.cs
-    /// 
-    /// We dont need tick order of execution here because of GameContext.cs
-    /// In the future we could have somewith where we have a priority float or int
-    /// that is then used to sort the stuff.
     /// </summary>
     public class Heart : MonoBehaviour
     {
-        [Tooltip("If you have GameInitiator.cs then you do not need this" +
-            " because the setup sequence will be fully there. This should be empty" +
-            " if there are no things that need to happen in order.")]
+        [Tooltip("This happens before all other setups and in this order.")]
         [SerializeField] private MonoBehaviour[] prioritySetup = default;
 
-        /// <summary>
-        /// I dont see a problem where the setupable object is deleted but this is still here since its
-        /// only used int he start basically. It becomes a null reference which is intended behaviour.
-        /// </summary>
         private static readonly List<ISetupable> setupables = new List<ISetupable>();
         private static readonly List<ITickable> tickables = new List<ITickable>();
         private static readonly List<ILateTickable> lateTickables = new List<ILateTickable>();
         private static readonly List<IFixedTickable> fixedTickables = new List<IFixedTickable>();
-        
+
+        /// <summary>
+        /// Made it so that we don't 
+        /// have to use FindObjectsOfType<>.
+        /// </summary>
         private void Start()
         {
             for (int i = 0; i < this.prioritySetup.Length; i++)
             {
-                // and also not null ???
-                if (this.prioritySetup[i] is ISetupable setupable)
-                {
-                    if (setupables.Contains(setupable))
-                        setupables.Remove(setupable);
+                if (!(this.prioritySetup[i] is ISetupable setupable))
+                    continue;
 
-                    setupable.DoSetup();
-                }
+                if (setupables.Contains(setupable))
+                    setupables.Remove(setupable);
+
+                setupable.DoSetup();
             }
 
             // Cannot use "this." because its static.
             setupables.ForEach(x => x.DoSetup());
 
-            // dont need em anymore.
+            // Don't need em anymore.
             setupables.Clear();
         }
 
         private void Update()
         {
             tickables.ForEach(x => x.DoTick());
-
-            // ???
-            // lateTickables.ForEach(x => x.LateTick());
         }
 
         private void FixedUpdate()
@@ -77,8 +66,6 @@ namespace VogueVR.Heartbeat
         {
             tickables.Clear();
             fixedTickables.Clear();
-
-            // ??
             setupables.Clear();
         }
 
@@ -91,14 +78,11 @@ namespace VogueVR.Heartbeat
         }
 
         /// <summary>
-        /// we are only alloed to register BaseBehaviour because
+        /// We are only allowed to register BaseBehaviour because
         /// those always deregister too.
-        /// 
-        /// Is there a way to make this cleaner with generics?
         /// </summary>
         public static void Register(BaseBehaviour behaviour) 
         {
-            // it cant be null !!
             if (behaviour is ITickable tickable && !tickables.Contains(tickable))
                 tickables.Add(tickable);
 

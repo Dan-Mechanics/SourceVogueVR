@@ -2,7 +2,6 @@
 
 namespace VogueVR.Gameplay
 {
-    //[System.Serializable]
     [CreateAssetMenu(fileName = "New Song", menuName = "ScriptableObjects/Song", order = 1)]
     public class Song : ScriptableObject
     {
@@ -11,6 +10,9 @@ namespace VogueVR.Gameplay
 
         public SongBeat[] ConvertToSongBeats() 
         {
+            if (string.IsNullOrEmpty(json) || string.IsNullOrWhiteSpace(json))
+                return null;
+            
             SongBeatSequence song = JsonUtility.FromJson<SongBeatSequence>(json);
 
             return song.beats;

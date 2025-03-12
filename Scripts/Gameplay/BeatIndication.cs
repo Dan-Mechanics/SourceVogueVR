@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Gameplay
 {
-    public class BeatIndication : MonoBehaviour
+    public class BeatIndication : BaseBehaviour, IFixedTickable
     {
         [SerializeField] private Transform growTarget = default;
         [SerializeField] private float growTargetDestroyLead = default;
@@ -19,7 +20,7 @@ namespace VogueVR.Gameplay
             Destroy(this.gameObject, this.destroyTime);
         }
 
-        private void FixedUpdate()
+        public void DoFixedTick()
         {
             if (this.growTarget == null)
                 return;
