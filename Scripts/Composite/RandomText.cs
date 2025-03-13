@@ -8,12 +8,12 @@ namespace VogueVR.Composite
     {
         public Action<string> OnTextChanged;
 
-        [SerializeField] private bool onStart = default;
+        [SerializeField] private bool fromStart = default;
         [SerializeField] private string[] strings = default;
 
         public void DoSetup()
         {
-            if (!this.onStart)
+            if (!this.fromStart)
                 return;
 
             Set();
