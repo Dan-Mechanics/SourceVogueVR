@@ -22,10 +22,10 @@ namespace VogueVR.Gameplay
             if (args.hasBomb)
                 beat.GetComponent<MeshRenderer>().material = this.bombMaterial;
 
-            BeatIndicationDestroyEffect remover = beat.GetComponent<BeatIndicationDestroyEffect>();
-            remover.Setup(args.index, args.songBeat.bodyPart);
+            BeatIndicationDestroyEffect destroyEffect = beat.GetComponent<BeatIndicationDestroyEffect>();
+            destroyEffect.Setup(args.index, args.songBeat.bodyPart);
 
-            this.OnSpawn?.Invoke(remover);
+            this.OnSpawn?.Invoke(destroyEffect);
         }
     }
 }

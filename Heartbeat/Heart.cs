@@ -4,7 +4,8 @@ using UnityEngine;
 namespace VogueVR.Heartbeat
 {
     /// <summary>
-    /// Because order of execution and performance.
+    /// Because Unity uses SendMessage for all the Update() and Start() calls,
+    /// which is not ideal.
     /// References:
     /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/GameManager.cs#L71
     /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/ExampleProject/CustomMonoBehaviour.cs
