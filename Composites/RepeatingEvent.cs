@@ -4,7 +4,7 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class RepeatingEvent : SelfSubscriber, ISetupable, IFixedTickable
+    public class RepeatingEvent : BaseBehaviour, IFixedTickable
     {
         [SerializeField] [Min(0.01f)] private float interval = default;
         [SerializeField] private bool fromStart = default;
@@ -12,7 +12,7 @@ namespace VogueVR.Composites
 
         private readonly Timer timer = new Timer();
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             if (this.interval <= 0f) 
             {
@@ -37,7 +37,7 @@ namespace VogueVR.Composites
 
         public void Hook()
         {
-            this.timer.SetValue(interval);
+            this.timer.SetValue(this.interval);
             this.onHook?.Invoke();
         }
     }

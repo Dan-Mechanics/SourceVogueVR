@@ -3,14 +3,14 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class RandomVariance : SelfSubscriber, ISetupable
+    public class RandomVariance : BaseBehaviour
     {
         [SerializeField] private float pos = default;
         [SerializeField] private float rot = default;
         [SerializeField] private float scale = default;
         [SerializeField] private bool flatten = default;
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             Vector3 insideUnitSphere = Random.insideUnitSphere;
 

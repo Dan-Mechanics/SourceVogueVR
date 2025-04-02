@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using VogueVR.Gameplay;
 
-namespace VogueVR.Gameplay
+namespace VogueVR.Recording
 {
     [CreateAssetMenu(fileName = "New Song", menuName = "ScriptableObjects/Song", order = 1)]
     public class Song : ScriptableObject

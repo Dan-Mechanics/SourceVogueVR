@@ -1,20 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VogueVR.Composites;
+using VogueVR.Heartbeat;
 
 namespace VogueVR.Gameplay
 {
-    public class BeatIndicationSpawner : MonoBehaviour
+    public class BeatIndicationSpawner : BaseBehaviour
     {
-        public Action<BeatIndicationDestroyEffect> OnSpawn;
+        public event Action<BeatIndicationDestroyEffect, BeatTrack.OnBeatArgs> OnSpawn;
 
         [SerializeField] private GameObject leftPrefab = default;
         [SerializeField] private GameObject rightPrefab = default;
         [SerializeField] private Material bombMaterial = default;
 
-        public void Spawn(object sender, SongPlayer.OnBeatArgs args)
+        private readonly Dictionary<BodyPart, GameObject> bodyPartToPrefab = new Dictionary<BodyPart, GameObject>();
+
+        public override void DoSetup()
         {
-            GameObject beat = Instantiate(args.songBeat.bodyPart == BodyPart.LeftHand ? this.leftPrefab : this.rightPrefab, args.songBeat.pos, Quaternion.identity);
+            this.bodyPartToPrefab.Add(BodyPart.LeftHand, this.leftPrefab);
+            this.bodyPartToPrefab.Add(BodyPart.RightHand, this.rightPrefab);
+        }
+
+        public void Spawn(BeatTrack.OnBeatArgs args)
+        {
+            if (!this.bodyPartToPrefab.ContainsKey(args.songBeat.bodyPart))
+                return;
+            
+            GameObject beat = Instantiate(this.bodyPartToPrefab[args.songBeat.bodyPart], args.songBeat.pos, Quaternion.identity);
 
             beat.transform.localScale = args.minDistForHit * 2f * Vector3.one;
             beat.GetComponent<GrowingTransform>().Setup(args.leadTime);
@@ -22,10 +35,9 @@ namespace VogueVR.Gameplay
             if (args.hasBomb)
                 beat.GetComponent<MeshRenderer>().material = this.bombMaterial;
 
-            BeatIndicationDestroyEffect destroyEffect = beat.GetComponent<BeatIndicationDestroyEffect>();
-            destroyEffect.Setup(args.index, args.songBeat.bodyPart);
+            Destroy(beat, args.leadTime + 0.1f);
 
-            this.OnSpawn?.Invoke(destroyEffect);
+            this.OnSpawn?.Invoke(beat.GetComponent<BeatIndicationDestroyEffect>(), args);
         }
     }
 }

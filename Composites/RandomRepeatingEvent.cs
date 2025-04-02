@@ -4,7 +4,7 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class RandomRepeatingEvent : SelfSubscriber, ISetupable, IFixedTickable
+    public class RandomRepeatingEvent : BaseBehaviour, IFixedTickable
     {
         [SerializeField] [Min(0f)] private float minTimeBetweenHooks = default;
         [SerializeField] [Min(0.01f)] private float maxTimeBetweenHooks = default;
@@ -12,7 +12,7 @@ namespace VogueVR.Composites
 
         private readonly Timer timer = new Timer();
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             Hook(); 
         }
@@ -26,7 +26,6 @@ namespace VogueVR.Composites
         public void Hook()
         {
             this.timer.SetValue(Random.Range(this.minTimeBetweenHooks, this.maxTimeBetweenHooks));
-
             this.onHook?.Invoke();
         }
     }

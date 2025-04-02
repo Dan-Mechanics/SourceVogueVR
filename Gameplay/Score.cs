@@ -8,7 +8,7 @@ namespace VogueVR.Gameplay
     /// </summary>
     public class Score : MonoBehaviour
     {
-        public Action<float> OnScoreChanged;
+        public event Action<float> OnScoreChanged;
 
         private bool canGainScore;
         private float score;
@@ -31,7 +31,7 @@ namespace VogueVR.Gameplay
         }
 
         /// <summary>
-        /// This is so that we dont gain score when the game has ended.
+        /// This is so that we don't gain score when the game has ended.
         /// </summary>
         public void Pause() 
         {

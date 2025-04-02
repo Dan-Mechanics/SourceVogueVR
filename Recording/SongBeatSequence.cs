@@ -1,4 +1,6 @@
-﻿namespace VogueVR.Gameplay
+﻿using VogueVR.Gameplay;
+
+namespace VogueVR.Recording
 {
     /// <summary>
     /// We do it like this because JSON doesn't

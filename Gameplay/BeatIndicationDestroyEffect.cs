@@ -8,39 +8,45 @@ namespace VogueVR.Gameplay
     /// </summary>
     public class BeatIndicationDestroyEffect : MonoBehaviour
     {
-        public BodyPart BodyPart => this.bodyPart;
-        
         [SerializeField] private GameObject popupPrefab = default;
         [SerializeField] private float popupTime = default;
 
         private int index;
-        private BodyPart bodyPart;
+        private BeatHittingController controller;
 
-        /// <summary>
-        /// You could almost give OnBeatArgs here.
-        /// </summary>
-        public void Setup(int index, BodyPart bodyPart)
+        public void Setup(int index, BeatHittingController controller)
         {
+            this.controller = controller;
             this.index = index;
-            this.bodyPart = bodyPart;
+
+            this.controller.OnDestroyBeatIndication += DestroyBeatIndication;
         }
-        
-        public void DestroyBeatIndication(object sender, BeatHittingController.OnDestroyBeatIndicationArgs args)
+
+        private void DestroyBeatIndication(BeatHittingController.OnDestroyBeatIndicationArgs args)
         {
             if (this.index != args.index)
                 return;
 
             if (args.scoreGained > 0f)
-            {
-                GameObject popup = Instantiate(this.popupPrefab, this.transform.position, Quaternion.identity);
-                TMP_Text text = popup.transform.GetChild(0).GetComponent<TMP_Text>();
-                text.text = args.scoreGained.ToString();
+                SpawnDestroyEffect(args);
 
-                Destroy(popup, popupTime);
-            }
-
-            ((BeatHittingController)sender).OnDestroyBeatIndication -= DestroyBeatIndication;
             Destroy(this.gameObject);
+        }
+
+        private void SpawnDestroyEffect(BeatHittingController.OnDestroyBeatIndicationArgs args)
+        {
+            GameObject popup = Instantiate(this.popupPrefab, this.transform.position, Quaternion.identity);
+            popup.GetComponentInChildren<TMP_Text>().text = args.scoreGained.ToString();
+
+            Destroy(popup, this.popupTime);
+        }
+
+        private void OnDestroy()
+        {
+            if (this.controller == null)
+                return;
+
+            this.controller.OnDestroyBeatIndication -= DestroyBeatIndication;
         }
     }
 }

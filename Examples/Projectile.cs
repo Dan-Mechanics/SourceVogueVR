@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 using VogueVR.Heartbeat;
 
-namespace VogueVR.Example
+namespace VogueVR.Examples
 {
-    public class Projectile : SelfSubscriber, ISetupable, ITickable, IFixedTickable
+    public class Projectile : BaseBehaviour, ITickable, IFixedTickable
     {
         [SerializeField] private float speed = default;
 
         private Transform proj;
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             this.proj = this.transform;
         }

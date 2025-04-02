@@ -5,124 +5,147 @@ namespace VogueVR.Heartbeat
 {
     /// <summary>
     /// Because Unity uses SendMessage for all the Update() and Start() calls,
-    /// which is not ideal.
-    /// References:
-    /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/GameManager.cs#L71
-    /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/ExampleProject/CustomMonoBehaviour.cs
+    /// which is not ideal because it uses Reflection.
+    /// Reference:
     /// https://github.com/vmuijrers/GitGud/blob/main/Assets/Scripts/ExampleProject/UpdateManager.cs
     /// </summary>
     public class Heart : MonoBehaviour
     {
-        private static readonly List<Setupable> setupables = new List<Setupable>();
-        private static readonly List<ITickable> tickables = new List<ITickable>();
-        private static readonly List<IFixedTickable> fixedTickables = new List<IFixedTickable>();
+        private static readonly Channel<ISetupable> setupables = new Channel<ISetupable>();
+        private static readonly Channel<ITickable> tickables = new Channel<ITickable>();
+        private static readonly Channel<ILateTickable> lateTickables = new Channel<ILateTickable>();
+        private static readonly Channel<IFixedTickable> fixedTickables = new Channel<IFixedTickable>();
+
+        private static bool setupCompleted;
 
         private void Start()
         {
-            setupables.ForEach(x => x.setupable1.DoSetup());
+            print(setupables.followers.Count);
+            
+            for (int i = setupables.followers.Count - 1; i >= 0; i--)
+            {
+                setupables.followers[i].DoSetup();
+            }
+            
             setupables.Clear();
+            setupCompleted = true;
         }
 
+        /// <summary>
+        /// It's reverse because elements can be removed.
+        /// </summary>
         private void Update()
         {
-            for (int i = tickables.Count - 1; i >= 0; i--)
+            for (int i = tickables.followers.Count - 1; i >= 0; i--)
             {
-                tickables[i].DoTick();
+                tickables.followers[i].DoTick();
+            }
+        }
+
+        private void LateUpdate()
+        {
+            for (int i = lateTickables.followers.Count - 1; i >= 0; i--)
+            {
+                lateTickables.followers[i].DoLateTick();
             }
         }
 
         private void FixedUpdate()
         {
-            for (int i = fixedTickables.Count - 1; i >= 0; i--)
+            for (int i = fixedTickables.followers.Count - 1; i >= 0; i--)
             {
-                fixedTickables[i].DoFixedTick();
+                fixedTickables.followers[i].DoFixedTick();
             }
         }
 
         /// <summary>
-        /// Forget old stuff when moving into new scene.
+        /// This is important because otherwise
+        /// when switching scenes the static Channels
+        /// persist.
         /// </summary>
         private void OnDestroy()
         {
             setupables.Clear();
             tickables.Clear();
             fixedTickables.Clear();
+
+            setupCompleted = false;
+        }
+
+        public static void Subscribe(object follower)
+        {
+            if (follower is ITickable tickable)
+                tickables.Subscribe(tickable);
+
+            if (follower is IFixedTickable fixedTickable)
+                fixedTickables.Subscribe(fixedTickable);
+
+            if (follower is ILateTickable lateTickable)
+                lateTickables.Subscribe(lateTickable);
+        }
+
+        public static void Unsubscribe(object follower)
+        {
+            if (follower is ITickable tickable)
+                tickables.Unsubscribe(tickable);
+
+            if (follower is IFixedTickable fixedTickable)
+                fixedTickables.Unsubscribe(fixedTickable);
+
+            if (follower is ILateTickable lateTickable)
+                lateTickables.Unsubscribe(lateTickable);
         }
 
         /// <summary>
-        /// We don't have to deregister setupable because it's setup.
+        /// Add and automatically sort setupable to a list.
+        /// If a global priority sorted setup has already taken place,
+        /// just call DoSetup() for setupable.
         /// </summary>
-        public static void RegisterSetupable(Setupable setupable) 
+        public static void RegisterSetupable(ISetupable setupable) 
         {
-            if (setupables.Contains(setupable))
+            if (setupCompleted)
+            {
+                setupable.DoSetup();
+                return;
+            }
+            
+            if (setupables.followers.Contains(setupable))
                 return;
 
-            for (int i = 0; i < setupables.Count; i++)
+            for (int i = 0; i < setupables.followers.Count; i++)
             {
-                if (setupable.priority < setupables[i].priority) 
+                if (setupable.SetupOrder < setupables.followers[i].SetupOrder) 
                 {
-                    setupables.Insert(i, setupable);
+                    setupables.followers.Insert(i, setupable);
                     return;
                 }
             }
 
-            setupables.Add(setupable);
+            setupables.followers.Add(setupable);
         }
 
-        public static void Register(SelfSubscriber selfSubscriber) 
+        public class Channel<T> 
         {
-            if (selfSubscriber is ITickable tickable)
-                RegisterTickable(tickable);
+            public readonly List<T> followers = new List<T>();
 
-            if (selfSubscriber is IFixedTickable fixedTickable)
-                RegisterFixedTickable(fixedTickable);
-        }
-
-        public static void Deregister(SelfSubscriber selfSubscriber)
-        {
-            if (selfSubscriber is ITickable tickable)
-                DeregisterTickable(tickable);
-
-            if (selfSubscriber is IFixedTickable fixedTickable)
-                DeregisterFixedTickable(fixedTickable);
-        }
-
-        public static void RegisterTickable(ITickable tickable)
-        {
-            if (tickables.Contains(tickable))
-                return;
-
-            tickables.Add(tickable);
-        }
-
-        public static void DeregisterTickable(ITickable tickable)
-        {
-            tickables.Remove(tickable);
-        }
-
-        public static void RegisterFixedTickable(IFixedTickable fixedTickable)
-        {
-            if (fixedTickables.Contains(fixedTickable))
-                return;
-
-            fixedTickables.Add(fixedTickable);
-        }
-
-        public static void DeregisterFixedTickable(IFixedTickable fixedTickable)
-        {
-            fixedTickables.Remove(fixedTickable);
-        }
-
-        public struct Setupable 
-        {
-            public ISetupable setupable1;
-            public int priority;
-
-            public Setupable(ISetupable setupable1, int priority)
+            public void Subscribe(T follower)
             {
-                this.setupable1 = setupable1;
-                this.priority = priority;
+                if (this.followers.Contains(follower))
+                    return;
+
+                this.followers.Add(follower);
             }
+
+            /// <summary>
+            /// We don't have to check if it's in there
+            /// since it doesn't throw an error if it's not.
+            /// </summary>
+            public void Unsubscribe(T follower)
+            {
+                this.followers.Remove(follower);
+            }
+
+            public void Clear() => this.followers.Clear();
         }
     }
 }

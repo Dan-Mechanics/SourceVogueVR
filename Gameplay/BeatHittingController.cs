@@ -8,10 +8,10 @@ namespace VogueVR.Gameplay
     [RequireComponent(typeof(DistanceTravelled))]
     public class BeatHittingController : MonoBehaviour
     {
-        public Action<float> OnModifyScore;
-        public event EventHandler<OnDestroyBeatIndicationArgs> OnDestroyBeatIndication;
+        public event Action<float> OnModifyScore;
+        public event Action<OnDestroyBeatIndicationArgs> OnDestroyBeatIndication;
 
-        public class OnDestroyBeatIndicationArgs : EventArgs 
+        public struct OnDestroyBeatIndicationArgs
         {
             public float scoreGained;
             public int index;
@@ -23,17 +23,12 @@ namespace VogueVR.Gameplay
             }
         }
 
-        [SerializeField] private BodyPart bodyPart = default;
         [SerializeField] private DistanceTravelled distanceTravelled = default;
-
         [SerializeField] private UnityEvent onHit = default;
         [SerializeField] private UnityEvent onMiss = default;
 
-        public void CheckHit(object sender, SongPlayer.OnBeatArgs args)
+        public void CheckForBeatCollision(BeatTrack.OnBeatArgs args)
         {
-            if (args.songBeat.bodyPart != this.bodyPart)
-                return;
-
             float scoreGained = 0f;
 
             if (CheckDistance(args))
@@ -53,21 +48,13 @@ namespace VogueVR.Gameplay
             }
 
             this.OnModifyScore?.Invoke(scoreGained);
-            this.OnDestroyBeatIndication?.Invoke(this, new OnDestroyBeatIndicationArgs(scoreGained, args.index));
+            this.OnDestroyBeatIndication?.Invoke(new OnDestroyBeatIndicationArgs(scoreGained, args.index));
             this.distanceTravelled.ResetDistance();
         }
 
-        private bool CheckDistance(SongPlayer.OnBeatArgs args)
+        private bool CheckDistance(BeatTrack.OnBeatArgs args)
         {
             return Vector3.Distance(this.transform.position, args.songBeat.pos) <= args.minDistForHit;
-        }
-
-        public void HookDestroy(BeatIndicationDestroyEffect effect)
-        {
-            if (this.bodyPart != effect.BodyPart)
-                return;
-
-            this.OnDestroyBeatIndication += effect.DestroyBeatIndication;
         }
     }
 }

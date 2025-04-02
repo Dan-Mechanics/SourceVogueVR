@@ -4,7 +4,10 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class StageHandler : SelfSubscriber, ISetupable
+    /// <summary>
+    /// AKA sequential event handler.
+    /// </summary>
+    public class StageHandler : BaseBehaviour
     {
         [SerializeField] private int stage = default;
         [SerializeField] private bool loadStageInStart = default;
@@ -12,7 +15,7 @@ namespace VogueVR.Composites
 
         private bool verified;
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             if (this.events == null || this.events.Length <= 0) 
             {

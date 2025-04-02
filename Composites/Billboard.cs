@@ -3,7 +3,7 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class Billboard : SelfSubscriber, ITickable
+    public class Billboard : BaseBehaviour, ITickable
     {
         [SerializeField] private Transform cam = default;
 

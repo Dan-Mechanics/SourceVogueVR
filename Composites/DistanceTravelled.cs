@@ -3,14 +3,14 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class DistanceTravelled : SelfSubscriber, ISetupable, IFixedTickable
+    public class DistanceTravelled : BaseBehaviour, IFixedTickable
     {
-        public float Distance => distance;
+        public float Distance => this.distance;
 
         private Vector3 prevPosition;
         private float distance;
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             this.prevPosition = this.transform.position;
         }

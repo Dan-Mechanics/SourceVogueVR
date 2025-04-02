@@ -4,11 +4,11 @@ using VogueVR.Heartbeat;
 namespace VogueVR.Composites
 {
     [RequireComponent(typeof(TrailRenderer))]
-    public class TrailRendColor : SelfSubscriber, ISetupable
+    public class TrailRendColor : BaseBehaviour
     {
         [SerializeField] private Color color = default;
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             SetColor(this.color);
         }

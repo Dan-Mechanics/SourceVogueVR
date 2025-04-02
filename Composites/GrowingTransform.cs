@@ -3,7 +3,7 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class GrowingTransform : SelfSubscriber, IFixedTickable
+    public class GrowingTransform : BaseBehaviour, IFixedTickable
     {
         [SerializeField] private Transform growTarget = default;
         [SerializeField] private float growTargetDestroyLead = default;

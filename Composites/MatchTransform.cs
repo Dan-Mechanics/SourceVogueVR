@@ -3,7 +3,7 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class MatchTransform : SelfSubscriber, ITickable
+    public class MatchTransform : BaseBehaviour, ITickable
     {
         [Header("References")]
 

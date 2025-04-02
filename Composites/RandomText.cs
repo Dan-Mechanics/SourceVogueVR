@@ -4,14 +4,14 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class RandomText : SelfSubscriber, ISetupable
+    public class RandomText : BaseBehaviour
     {
-        public Action<string> OnTextChanged;
+        public event Action<string> OnTextChanged;
 
         [SerializeField] private bool fromStart = default;
         [SerializeField] private string[] strings = default;
 
-        public void DoSetup()
+        public override void DoSetup()
         {
             if (!this.fromStart)
                 return;

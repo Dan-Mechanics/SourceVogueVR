@@ -1,38 +1,16 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using VogueVR.Heartbeat;
+using VogueVR.Recording;
 
 namespace VogueVR.Gameplay
 {
-    /// <summary>
-    /// Raises events from the timing of the beats and handles
-    /// the contents of the beats.
-    /// </summary>
-    public class SongPlayer : SelfSubscriber, ISetupable, ITickable
+    public class SongPlayer : BaseBehaviour, ITickable
     {
-        public event EventHandler<OnBeatArgs> OnBeat;
-        public event EventHandler<OnBeatArgs> OnGhostBeat;
-
-        public class OnBeatArgs : EventArgs
-        {
-            public SongBeat songBeat;
-            public float minDistForHit;
-            public float leadTime;
-            public int index;
-            public bool hasBomb;
-
-            public OnBeatArgs(SongBeat songBeat, float minDistForHit, float leadTime, int index, bool hasBomb)
-            {
-                this.songBeat = songBeat;
-                this.minDistForHit = minDistForHit;
-                this.leadTime = leadTime;
-                this.index = index;
-                this.hasBomb = hasBomb;
-            }
-        }
+        public BeatTrack MainTrack { get; private set; }
+        public BeatTrack AnticipationTrack { get; private set; }
 
         [Header("References")]
 
@@ -42,7 +20,7 @@ namespace VogueVR.Gameplay
         [Header("Settings")]
 
         [SerializeField] private float minDistForHit = default;
-        [SerializeField] private float beatLeadTime = default;
+        [SerializeField] private float anticipationTrackLeadTime = default;
         [SerializeField] [Range(0f, 1f)] private float bombPercentage = default;
 
         [Header("Events")]
@@ -52,18 +30,12 @@ namespace VogueVR.Gameplay
 
         private SongBeat[] songBeats;
         private readonly List<int> bombBeatIndexes = new List<int>();
-
         private float startTime;
         private float stopTime;
-        /*private int beatIndex;
-        private int ghostBeatIndex;*/
 
-        private BeatTrack mainTrack;
-        private BeatTrack anticipationTrack;
-
-        public void DoSetup()
+        public override void DoSetup()
         {
-            // We want to start as stopped.
+            // Start as stopped.
             Stop();
 
             this.songBeats = this.song.ConvertToSongBeats();
@@ -76,50 +48,48 @@ namespace VogueVR.Gameplay
                 return;
             }
 
-            mainTrack = new BeatTrack(0, 0f);
-            anticipationTrack = new BeatTrack(0, beatLeadTime);
+            this.MainTrack = new BeatTrack(0, 0f);
+            this.AnticipationTrack = new BeatTrack(0, this.anticipationTrackLeadTime);
         }
 
         public void DoTick()
         {
-            if (Time.time >= stopTime) 
+            if (Time.time >= this.stopTime)
             {
                 Stop();
 
                 return;
             }
 
-            if (this.anticipationTrack.CheckIfBeatIsNow(this.songBeats, this.startTime))
+            if (this.AnticipationTrack.CheckIfBeatIsNow(this.songBeats, this.startTime))
                 SpawnAnticipationBeat();
 
-            if (this.mainTrack.CheckIfBeatIsNow(this.songBeats, this.startTime))
-                SpawnBeat();
+            if (this.MainTrack.CheckIfBeatIsNow(this.songBeats, this.startTime))
+                this.MainTrack.GoNextBeat(this.songBeats, this.minDistForHit, this.bombBeatIndexes);
         }
 
         private void SpawnAnticipationBeat()
         {
-            if (this.bombPercentage >= UnityEngine.Random.value)
-                this.bombBeatIndexes.Add(this.anticipationTrack.index);
+            // The anticipation track makes the bombs.
+            if (this.bombPercentage >= Random.value)
+                this.bombBeatIndexes.Add(this.AnticipationTrack.index);
 
-            this.OnGhostBeat?.Invoke(this, new OnBeatArgs(this.songBeats[this.anticipationTrack.index], this.minDistForHit,
-                this.beatLeadTime, this.anticipationTrack.index, this.bombBeatIndexes.Contains(this.anticipationTrack.index)));
-
-            this.anticipationTrack.index++;
+            this.AnticipationTrack.GoNextBeat(this.songBeats, this.minDistForHit, this.bombBeatIndexes);
         }
 
-        public void SpawnBeat()
-        {
-            this.OnBeat.Invoke(this, new OnBeatArgs(this.songBeats[this.mainTrack.index], this.minDistForHit,
-                this.beatLeadTime, this.mainTrack.index, this.bombBeatIndexes.Contains(this.mainTrack.index)));
-
-            this.mainTrack.index++;
-        }
-
+        /// <summary>
+        /// Called via Unity Event.
+        /// </summary>
         public void Play()
         {
+            print($"waiting for {this.song.name} ...");
+
             this.bombBeatIndexes.Clear();
-            this.mainTrack.index = 0;
-            this.anticipationTrack.index = 0;
+            this.MainTrack.Reset();
+            this.AnticipationTrack.Reset();
+
+            // This makes it even more random!
+            Random.InitState(Mathf.RoundToInt(Time.time * 60f));
 
             StopCoroutine(PlayCoroutine());
             StartCoroutine(PlayCoroutine());
@@ -127,9 +97,9 @@ namespace VogueVR.Gameplay
 
         private IEnumerator PlayCoroutine()
         {
-            if (this.beatLeadTime > this.songBeats[this.mainTrack.index].time)
+            if (this.anticipationTrackLeadTime > this.songBeats[this.MainTrack.index].time)
             {
-                float waitForBeatLeadTime = this.beatLeadTime - this.songBeats[0].time;
+                float waitForBeatLeadTime = this.anticipationTrackLeadTime - this.songBeats[0].time;
 
                 SpawnAnticipationBeat();
 
@@ -137,24 +107,29 @@ namespace VogueVR.Gameplay
             }
 
             this.startTime = Time.time;
-            this.stopTime = startTime + this.song.clip.length;
+            this.stopTime = this.startTime + this.song.clip.length;
 
             this.source.PlayOneShot(this.song.clip);
             this.onPlay?.Invoke();
 
-            Heart.Register(this);
+            Heart.Subscribe(this);
 
-            print($"now playing {this.song.name}");
+            print($"now playing {this.song.name} !");
         }
 
+        /// <summary>
+        /// Called via Unity Event.
+        /// </summary>
         public void Stop()
         {
             StopCoroutine(PlayCoroutine());
 
-            Heart.Deregister(this);
+            Heart.Unsubscribe(this);
 
             this.onStop?.Invoke();
             this.source.Stop();
+
+            print($"stopped {this.song.name} ...");
         }
     }
 }

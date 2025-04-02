@@ -4,7 +4,7 @@ using VogueVR.Heartbeat;
 
 namespace VogueVR.Composites
 {
-    public class TimerBehaviour : SelfSubscriber, IFixedTickable
+    public class TimerBehaviour : BaseBehaviour, IFixedTickable
     {
         [SerializeField] private UnityEvent onTimerComplete = default;
 
@@ -16,7 +16,7 @@ namespace VogueVR.Composites
             {
                 this.onTimerComplete?.Invoke();
 
-                Heart.Deregister(this);
+                Heart.Unsubscribe(this);
             }
         }
 
@@ -25,7 +25,7 @@ namespace VogueVR.Composites
             this.timer.SetValue(value);
             this.gameObject.SetActive(true);
 
-            Heart.Register(this);
+            Heart.Subscribe(this);
         }
     }
 }
