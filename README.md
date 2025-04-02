@@ -1,1 +1,1 @@
-main repo : https://github.com/Dan-Mechanics/VogueVR
+full repo : https://github.com/Dan-Mechanics/VogueVR
