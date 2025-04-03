@@ -97,7 +97,7 @@ namespace VogueVR.Gameplay
 
         private IEnumerator PlayCoroutine()
         {
-            if (this.anticipationTrackLeadTime > this.songBeats[this.MainTrack.index].time)
+            if (this.anticipationTrackLeadTime > this.songBeats[0].time)
             {
                 float waitForBeatLeadTime = this.anticipationTrackLeadTime - this.songBeats[0].time;
 
