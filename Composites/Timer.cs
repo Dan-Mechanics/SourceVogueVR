@@ -1,13 +1,13 @@
 ﻿namespace VogueVR.Composites
 {
     /// <summary>
-    /// Can this be a struct?
+    /// Used as a composite in many other classes.
     /// </summary>
     public class Timer
     {
         private float value;
         private bool hasBeenSet;
-
+        
         public bool Tick(float interval) 
         {
             if (!this.hasBeenSet)
@@ -17,7 +17,7 @@
             return this.value <= 0f;
         }
 
-        public void SetValue(float value) 
+        public virtual void SetValue(float value) 
         {
             this.value = value;
             this.hasBeenSet = true;

@@ -13,6 +13,7 @@ namespace VogueVR.Gameplay
         [SerializeField] private GameObject leftPrefab = default;
         [SerializeField] private GameObject rightPrefab = default;
         [SerializeField] private Material bombMaterial = default;
+        [SerializeField] private float automaticDestroyDelay = default;
 
         private readonly Dictionary<BodyPart, GameObject> bodyPartToPrefab = new Dictionary<BodyPart, GameObject>();
 
@@ -35,7 +36,8 @@ namespace VogueVR.Gameplay
             if (args.hasBomb)
                 beat.GetComponent<MeshRenderer>().material = this.bombMaterial;
 
-            Destroy(beat, args.leadTime + 0.1f);
+            // This is for when the song stops and there is nothing to destroy the beats.
+            Destroy(beat, args.leadTime + automaticDestroyDelay);
 
             this.OnSpawn?.Invoke(beat.GetComponent<BeatIndicationDestroyEffect>(), args);
         }

@@ -16,7 +16,7 @@ namespace VogueVR.Heartbeat
 
         protected virtual void Awake()
         {
-            Heart.RegisterSetupable(this);
+            Heart.SubscribeSetupable(this);
         }
 
         public virtual void DoSetup() { }

@@ -101,7 +101,7 @@ namespace VogueVR.Heartbeat
         /// If a global priority sorted setup has already taken place,
         /// just call DoSetup() for setupable.
         /// </summary>
-        public static void RegisterSetupable(ISetupable setupable) 
+        public static void SubscribeSetupable(ISetupable setupable) 
         {
             if (setupCompleted)
             {

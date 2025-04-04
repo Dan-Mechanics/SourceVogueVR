@@ -29,7 +29,7 @@ namespace VogueVR.Managers
                 Debug.LogError("please assign controllers !!!");
                 return;
             }
-            
+
             bodyPartToControllers.Add(BodyPart.LeftHand, controllers[0]);
             bodyPartToControllers.Add(BodyPart.RightHand, controllers[1]);
 

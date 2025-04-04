@@ -24,6 +24,11 @@ namespace VogueVR.Gameplay
 
         private void DestroyBeatIndication(BeatHittingController.OnDestroyBeatIndicationArgs args)
         {
+            // We can't destroy if we are already destroyed.
+            // This needs to be here because unsubscribe is in OnDestroy().
+            if (this == null)
+                return;
+            
             if (this.index != args.index)
                 return;
 

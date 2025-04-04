@@ -38,12 +38,12 @@ namespace VogueVR.Gameplay
                 if (args.hasBomb)
                     scoreGained *= -1f;
 
-                print($"hit beat @ {args.songBeat.time}");
+                print($"hit beat @ {args.songBeat.time}.");
                 this.onHit?.Invoke();
             }
             else
             {
-                print($"missed beat @ {args.songBeat.time}");
+                print($"missed beat @ {args.songBeat.time}.");
                 this.onMiss?.Invoke();
             }
 

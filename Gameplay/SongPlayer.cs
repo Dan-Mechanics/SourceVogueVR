@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using VogueVR.Composites;
 using VogueVR.Heartbeat;
 using VogueVR.Recording;
 
@@ -30,6 +31,7 @@ namespace VogueVR.Gameplay
 
         private SongBeat[] songBeats;
         private readonly List<int> bombBeatIndexes = new List<int>();
+        private readonly SubscribedTimer subscribedTimer = new SubscribedTimer();
         private float startTime;
         private float stopTime;
 
@@ -80,7 +82,7 @@ namespace VogueVR.Gameplay
         /// <summary>
         /// Called via Unity Event.
         /// </summary>
-        public void Play()
+        public void StartPlayingSong()
         {
             print($"waiting for {this.song.name} ...");
 
@@ -91,20 +93,26 @@ namespace VogueVR.Gameplay
             // This makes it even more random!
             Random.InitState(Mathf.RoundToInt(Time.time * 60f));
 
-            StopCoroutine(PlayCoroutine());
-            StartCoroutine(PlayCoroutine());
-        }
-
-        private IEnumerator PlayCoroutine()
-        {
             if (this.anticipationTrackLeadTime > this.songBeats[0].time)
             {
-                float waitForBeatLeadTime = this.anticipationTrackLeadTime - this.songBeats[0].time;
+                this.subscribedTimer.OnComplete += PlaySong;
+                this.subscribedTimer.SetValue(this.anticipationTrackLeadTime - this.songBeats[0].time);
 
                 SpawnAnticipationBeat();
 
-                yield return new WaitForSeconds(waitForBeatLeadTime);
+                return;
             }
+
+            PlaySong();
+        }
+
+        /// <summary>
+        /// If this is called from SubscribedTimer, it has stopped itself,
+        /// and if it's called directly from StartPlayingSong(), then it didnt start in the first place.
+        /// </summary>
+        private void PlaySong()
+        {
+            this.subscribedTimer.OnComplete -= PlaySong;
 
             this.startTime = Time.time;
             this.stopTime = this.startTime + this.song.clip.length;
@@ -122,7 +130,8 @@ namespace VogueVR.Gameplay
         /// </summary>
         public void Stop()
         {
-            StopCoroutine(PlayCoroutine());
+            this.subscribedTimer.OnComplete -= PlaySong;
+            this.subscribedTimer.Stop();
 
             Heart.Unsubscribe(this);
 
